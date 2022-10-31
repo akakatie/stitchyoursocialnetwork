@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+	
+	<title>Stitch Your Social Network</title>
+
+    <!-- Style and Text Sheets CSS-->
+    <link rel="stylesheet" href="desn2003.css">
+    <link rel="stylesheet" href="https://use.typekit.net/ork0mbm.css">
+
+</head>
+
+<!--Start of Image Header-->
+
+<!--End of Imager Header-->
+
+<body>
+
+    <img class="header" src="image/header.jpeg">
+
+    <h1>Stitch Your Social Network</h1>
+
+    <div class="colour">
+        <div class="column1">
+            <br/>
+            <p>Facebook collects large volumes of personal data, from searches, to messages and connections across your entire social network. Stitch Your Social Network is a project that offers a way to reclaim your data in a meaningful and reflective way.</p>
+
+            <p>The project involves embroidering personal annotations on top of a generated pattern based on your facebook friends. It provides the opportunity to reflect on how digital connections reflect or don't reflect real life experiences. Embroidery is a contemplative craft, giving you time to not only explore, but speak back to your data with your own stitches and connections.</p>
+                
+            <p>The project is open to anyone looking to take back their data ownership, or just have some fun with embroidery. We’ve compiled some steps below to get started!</p>
+
+            <br/>
+        </div>
+
+        <div class="column2">
+            <!-- https://www.w3schools.com/w3css/w3css_slideshow.asp-->
+        <div class="slideshow-container">
+            
+            <img class="mySlides fade" src="image/katie2.jpg">
+            
+            <img class="mySlides fade" src="image/katie3.jpg">
+            
+            <img class="mySlides fade" src="image/tilda2.jpg">
+
+            <img class="mySlides fade" src="image/tilda4.jpg">
+
+            <img class="mySlides fade" src="image/tilda3.jpg">
+
+            <img class="mySlides fade" src="image/alisha1.jpg">
+
+            <img class="mySlides fade" src="image/alisha2.jpg">
+
+            <img class="mySlides fade" src="image/katieandtilda.jpg">
+    
+    </div>
+
+    <br/>
+        </div>
+    </div>
+
+    <script>
+        
+            var myIndex = 0;
+            showSlides();
+            
+            function showSlides() {
+              var i;
+              var x = document.getElementsByClassName("mySlides");
+              for (i = 0; i < x.length; i++) {
+                  x[i].style.display = "none";  
+              }
+              myIndex++;
+            if (myIndex > x.length) {myIndex = 1}    
+            x[myIndex-1].style.display = "block";  
+            setTimeout(showSlides, 3000); // Change image every 2 seconds
+        }
+            </script>
+
+
+
+    <br/>
+
+    <div class="colour">
+            <h2>Step 1: Gathering the Data and Generating the Pattern</h2>
+            <p>We've put together an R notebook that steps you through how to download your facebook data and generate a base pattern for your embroidery. 
+                <ul>
+                    <li><p><a href="stitchyoursocialnetwork_script.nb.html">View the notebook preview</a></p></li>
+                    <li><p><a href="stitchyoursocialnetwork_script.Rmd" download>Download the .Rmd</a></p></li>
+                  </ul>
+            </p>
+            <br/>
+        </div>
+
+        <br/>
+
+        <div class="colour">
+                <h2>Step 2: Transferring the Pattern</h2>
+                <p>Once you’ve got your pattern and some embroidery materials (an embroidery hoop, some fabric, a needle, some thread), it's time to transfer the data onto the fabric.  There are many ways patterns can be transferred. Here we detail the options that worked well for us:</p>
+            <div id="methods">
+                <details>  
+                    <summary><h5>Fabric Print Method:</h5></summary> 
+                    <p>1. Cut a piece of freezer paper to the size of an A4 page.</p>
+
+                    <br/>
+    
+                    <div class="center">
+                        <img class="size" src="image/iron (1).jpg">
+                    </div>
+    
+                    <br/><br/>
+                    
+                    <p>2. Put it shiny side down on your fabric and iron lightly until it sticks.</p>
+    
+                    <br/>
+    
+                    <div class="center">
+                        <img class="size" src="image/iron.jpg">
+                    </div>
+    
+                    <br/><br/>
+                    
+                    <p>3. Cut out the reinforced section of fabric. Load into an inkjet printer. Print</p>
+    
+                    <br/>
+    
+                    <div class="center">
+                        <img class="size" src="image/iron (2).jpg">
+                        <img class="size" src="image/iron (3).jpg">
+                    </div>    
+                </details>  
+                
+
+                <details>  
+                    <summary><h5>Transfer Paper Method:</h5></summary> 
+
+                <p>This method is particularly useful if you’re using dark fabric that's hard to print on. The YouTube channel Lolli and Grace provides a useful tutorial on how to do this. We’ve also made a list of the steps you can follow. 
+
+                <br/><br/>
+                    
+                Lolli and Grace video resource: <a href="https://www.youtube.com/watch?v=7U4t7DEWBYI">https://www.youtube.com/watch?v=7U4t7DEWBYI</a>
+
+                <br/><br/>
+                    
+                1. Print out your PDF data pattern to the same size as your embroidery hoop
+
+                <br/><br/>
+                
+                2. Secure your fabric in the hoop and place with the fabric against a flat surface.
+
+                <br/><br/>
+                    
+                3. Cut a piece of white transfer paper and your pattern to the size of your embroidery hoop and tape inside.</p>
+
+                <br/>
+
+                <div class="center">
+                <img class="size"src="image/transfer.JPG">
+                </div>
+
+                <br/><br/>
+                    
+                <p>4. Use a pen to firmly trace all the dots, this will transfer them onto the fabric.</p>
+
+                <br/>
+
+                <div class="center">
+                <img class="size" src="image/transfer3.jpg">
+                </div>
+
+                <br/><br/>
+                    
+                <p>5. Remove the paper and go over the dots in a white gel pen to make the more visible.</p>
+
+                <br/>
+                 
+                <div class="center">
+                <img class="size" src="image/transfer1.jpg">
+                <img class="size" src="image/transfer2.jpg">
+                </div>
+
+                <br/><br/>
+            </details> 
+            </div> 
+                <p>Tip: If your pattern isn’t too complicated you can also try taping the pattern to the paper and drawing the dots by poking through the paper with a white gel pen!</p>
+
+                <br/>
+            
+        </div>
+    
+        <br/>
+
+        <div class="colour">
+            
+            <h2>Step 3: Embroidery</h2>
+
+            <div class="column1">
+                
+                <p>Once you’ve transferred your pattern it's time to start stitching! If you’re new to embroidery, here are a couple of resources we found helpful for getting started:
+
+                <br/><br/>
+
+                Some basic beginner stitches: <a href="https://www.youtube.com/watch?v=OWv6Ypzn9dg">https://www.youtube.com/watch?v=OWv6Ypzn9dg</a>
+
+                <br/>
+
+                Some more complicated beginner stitches: 
+                <a href="https://www.youtube.com/watch?v=sib-U2Np7G8">https://www.youtube.com/watch?v=sib-U2Np7G8</a>
+
+                <br/><br/>
+
+                Stuck on what to stitch? Everyone’s approach to their embroidery will be different, but we’ve listed a some questions we found helpful to prompt our own processes:
+
+                <br/>
+
+                Are the people who are important to me represented as important in the data? 
+
+                <br/>
+
+                Are they even represented at all? 
+
+                <br/>
+                
+                How might I explore or show different groups of people in my life?
+
+                <br/>
+
+                Do I want to stitch all the data points, or only a few?
+
+                <br/><br/>
+
+                There’s no right or wrong way to go about it! We also found it helpful to draw some plans onto pattern paper printouts with markers. 
+                    
+                </p>
+
+                <br/>
+            </div>
+            
+            <div class="column2">
+                <div class="slideshow-container2">
+            
+                    <img class="mySlides2 fade" src="image/katiestitch.jpg">
+
+                    <img class="mySlides2 fade" src="image/tildasketch (2).jpg">
+
+                    <img class="mySlides2 fade" src="image/tildasketch (1).jpg">
+                    
+                    <img class="mySlides2 fade" src="image/tildastitch.jpg">
+                    
+                    <img class="mySlides2 fade" src="image/tildastitch2.jpg">
+
+                    <img class="mySlides2 fade" src="image/alishastitch1.jpg">
+
+                    <img class="mySlides2 fade" src="image/alishastitch2.jpg">
+
+                    <img class="mySlides2 fade" src="image/alishastitch.jpg">
+            
+            </div>
+
+            <br/>
+            </div>
+
+        </div>
+
+        <script>
+        
+            var myIndex2 = 0;
+            showSlides2();
+            
+            function showSlides2() {
+              var i;
+              var x = document.getElementsByClassName("mySlides2");
+              for (i = 0; i < x.length; i++) {
+                  x[i].style.display = "none";  
+              }
+              myIndex2++;
+            if (myIndex2 > x.length) {myIndex2 = 1}    
+            x[myIndex2-1].style.display = "block";  
+            setTimeout(showSlides2, 3000); // Change image every 2 seconds
+        }
+            </script>
+    
+            <br/>
+
+            <div class="colour">
+                <h2>Step 4: Share</h2>
+                <p> If you like, you can go full circle and share your social network on social media using <a href="https://www.instagram.com/explore/tags/stitchyoursocialnetwork/">#stitchyoursocialnetwork</a>!
+                </p>
+                <br/>
+            </div>
+    <!--Start of Footer-->
+    <div class="footercolour">
+
+        <br/>
+        <h3>Stitch Your Social Network is submitted to The Australian National University. </h3>
+
+        <hr/>
+
+        <h4>Tilda Blackbourn-Rooney: Developer, Designer and Material Experimentation. tilda.jbr@gmail.com</h4>
+
+        <h4>Katie Anderson-Kelly: Developer, Designer and Rscript Writer. k.andersonkelly@gmail.com</h4>
+
+        <h4>Alisha Garrigues: Developer, Designer and Website Designer. alisha.garrigues@gmail.com</h4>
+
+        <br/>
+               
+    </div>
+
+    
+    <!--End of Footer-->
+
+
+    
+</body>
+</html>

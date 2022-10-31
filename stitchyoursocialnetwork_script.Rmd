@@ -1,0 +1,230 @@
+---
+title: "Stitch your social network"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook with the code to produce an embroidery pattern to stitch your own social network. Work your way through this notebook to generate your own pattern. When you execute code within the notebook, the results appear beneath the code. To execute code chunks, click the *Run* button within the chunk or by place your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+
+# DIY Instructions
+
+
+## Get your facebook data
+To generate your pattern, you will need your facebook data export. To acquire data:
+
+1. Visit [https://www.facebook.com/dyi](https://www.facebook.com/dyi) while logged in to your facebook account
+2. Select JSON as the format
+3. Select LOW as the media quality (won't be used but can't be excluded)
+4. Set the date range to all time
+5. Deselect all options
+6. Set the download to include: Messages, Posts, Comments and reactions, Profile information, Friends and followers
+7. Click generate. This could take awhile (several days), but facebook will notify you when it's finished.
+8. Save and unzip your download
+
+## Get the workspace set up
+
+### Set the working directory
+For this notebook to execture correctly, the working directory needs to be set to the parent folder of your unzipped facebook export. To do this, either:
+
+* manually set the working directory using the "Session -> set working directory" menu item
+* save the notebook to the parent folder and then run the following code chunk
+```{r}
+current_path = rstudioapi::getActiveDocumentContext()$path 
+setwd(dirname(current_path ))
+print(paste(c("Your working directory is now ", dirname(current_path )),collapse = ""))
+```
+
+### Load R libraries
+Load the R libraries that will be used throughout the script
+```{r}
+library(jsonlite) # for working with the JSON files
+library(anytime) # for converting timestamps
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+```
+
+
+## Generate pattern: Part A
+
+### Get your list of friends
+The first step of generating the pattern is reading in and processing your list of facebook friends. This code chunk reads in the "friends_and_followers" JSON file.
+```{r}
+friendsFollowers <- fromJSON("friends_and_followers/friends.json") # read in file
+friendsFollowers <- friendsFollowers$friends_v2 #keep only the useful part of the json object
+friendsFollowers$connectedDate <- anytime(friendsFollowers$timestamp) #convert the timestamp from epoch time to local time (workspace default)
+friendsFollowers <- friendsFollowers %>% arrange(timestamp)
+friendsFollowers$rankOrder <- 1:nrow(friendsFollowers) #create a rank order variable
+```
+
+
+### Write out friends csv
+Export a list of your facebook friends as a csv so that you can identify the ones your want highlighted in your pattern.
+```{r}
+friendsList <- friendsFollowers %>% select(rankOrder, name) %>%
+  add_column(highlight = "N", annotation = "", group = "")
+write_csv(friendsList, "friends.csv") #Export the ordered list of friends
+```
+
+### Choose who to highlight
+Open the friends.csv created in the previous step. To select friends who should be highlighted in the pattern:
+
+* change the "N" in the highlight column to a "Y". 
+* (Optional): add any notes you'd like included in the "annotation" column
+* (Optional): assign people to a single group by listing the group name in the group column. This can be used later to colour your points in the pattern. 
+
+## Generate pattern: Part B
+
+### Process the interaction data
+```{r}
+#Initialise a blank dataframe to store message metadata
+messages <- data.frame(sender_name=character(), timestamp_ms=numeric(), type=character()) 
+
+## Getting and processing inbox message data
+appendMessages <- function(filename) { # function needed for processing the inbox messages
+  tempDF <- fromJSON(filename) # read in file
+  tempDF <- tempDF$messages #keep only the useful part of the json object
+  tempDF <- tempDF  %>% select(sender_name, timestamp_ms) #keep only useful columns
+  messages <<- bind_rows(messages,tempDF) #push the messages from this conversation into the main messages folder
+}
+
+#Read in a list of all the subfolders within the message/inbox directory
+inboxFolders <- list.files("messages/inbox")
+# Loop through the inbox message subfolders and push the messages into the main message dataframe
+for (i in 1:length(inboxFolders)) {
+  appendMessages(paste(c("messages/inbox/",inboxFolders[[i]],"/message_1.json"),collapse=""))
+}
+
+#Summarise the messages dataset by sender name, to get the total count and most recent
+messagesSummary <- messages %>%
+  group_by(sender_name) %>%
+  summarise(countM = n(), mostRecentM = max(timestamp_ms))
+
+```
+
+
+```{r}
+#Join this to the existing friends data
+interactions <- left_join(friendsFollowers,messagesSummary, by=c("name"="sender_name"))
+selectedFriends <- read_csv("friends.csv")
+interactions <- left_join(interactions,selectedFriends, by=c("name"="name", "rankOrder" = "rankOrder"))
+```
+
+
+### Set up your pattern requirements
+Edit any of the below parameters to adjust your desired pattern size. 
+```{r}
+hoopSize <- 18 #Embroidery hoop diameter (cm)
+hoopRadius <- hoopSize/2 
+innerBuffer <- .5 #Size of the inner buffer in the centre of the pattern (radius)
+outerBuffer <- 1.5 #Size of the outer buffer in the centre of the pattern (radius)
+circleSize <- .8 #Size of the points in the pattern
+pageW <- 21 #Page width (cm)
+pageH <- 29.7 #Page height (cm)
+```
+
+### Set up your pattern colours
+By adding group names to the csv, you can choose to add colours to your pattern. List the group names and desired colour codes here.
+Use the format: 'groupname'='#colour hex value'
+```{r}
+groupColours <- c(
+'Family'='#501737',
+'School'='#105495',
+'University'='#269788',
+'Capoeira'='#e28738',
+'Work'='#9e1e08',
+'Other'='#565662')
+```
+
+
+### Generate and export the pattern
+Running the following code chunk will generate the pattern and export it as a PDF. 
+```{r}
+
+#Process the message data
+interactions$mostRecentMDate <- anytime(interactions$mostRecentM/1000) # Get the most recent message date as formatted date time
+interactions$recentMDiff <- round(as.numeric(difftime(Sys.Date(),interactions$mostRecentMDate,units = "days")),0) # Difference between most recent message and now
+interactions$connectedDiff <- round(as.numeric(difftime(Sys.Date(),interactions$connectedDate,units = "days")),0) # Difference between when connected and now
+interactions$recentMNormalised <- interactions$recentMDiff/interactions$connectedDiff # Adjust the recent message time as a proportion of the time connected
+interactions$recentMNormalised <- ifelse(interactions$recentMNormalised > 1, 1, interactions$recentMNormalised)  #Replace any messages from before connection with 1
+interactions <- dplyr::mutate(interactions, across(c(countM), replace_na, 0)) # Replace any missing values with 0
+interactions <- dplyr::mutate(interactions, across(c(recentMNormalised), replace_na, 1)) # Replace any missing values with 1
+interactions$countMratio <- abs(interactions$countM / interactions$connectedDiff) # Get the ratio of number of messages to number of days connected
+maxCountMRatio <- max(interactions$countMratio) # Get the max ratio for all friends
+interactions$countMratioNormalised <- 1-interactions$countMratio/maxCountMRatio # Normalise the frequency ratio across all friends by this max
+
+#Calculate the position of each point
+interactions <- interactions %>% 
+  mutate(
+    distance_to_center = (countMratioNormalised*1+(recentMNormalised*1.0))/2 * (hoopRadius - outerBuffer-innerBuffer) + innerBuffer, # position based on a weighted combination of both
+    direction = rankOrder*(2*pi)/nrow(interactions),
+    x = distance_to_center*sin(direction),
+    y = distance_to_center*cos(direction))
+
+#Draw the pattern
+pattern <- ggplot(interactions, aes(x, y, shape=highlight)) + geom_point(size = circleSize,  aes(color=group )) +
+  theme(aspect.ratio=sqrt(2)/1) + 
+  scale_color_manual(values = groupColours) +
+  scale_shape_manual(values = c("Y"=1, "N" = 19)) +
+  xlim(-pageW/2, pageW/2) + 
+  ylim(pageH/3*-2,pageH/3) +
+ ## annotate("path", x=hoopRadius*cos(seq(0,2*pi,length.out=100)), y=hoopRadius*sin(seq(0,2*pi,length.out=100)), color="lightgrey")+ ##comment out if external circle not desired
+  annotate(geom = "point", x = 0, y = 0, color = "lightgrey") + 
+  annotate("text", x = -1*pageW/3, y = pageH/3, label = "This way up", size=3,hjust = 0) +
+  theme(axis.line=element_blank(),axis.text.x=element_blank(),
+        axis.text.y=element_blank(),axis.ticks=element_blank(),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank(),legend.position="none",
+        panel.background=element_blank(),panel.border=element_blank(),panel.grid.major=element_blank(),
+        panel.grid.minor=element_blank(),plot.background=element_blank()) + 
+  theme(legend.position = c(0.38, 0.15), 
+        legend.text=element_text(size=8),
+        legend.direction="horizontal", 
+        legend.key=element_blank(),
+        legend.title=element_text(size=10), 
+        legend.background=element_blank()) +
+  guides(colour = guide_legend(override.aes = list(size=2), nrow=1), shape = 'none')+ 
+  labs(color='') +
+  annotate("text", x = pageW/3*-1.3, y = pageH/3*-1.25, label = "Legend", size=3.5, hjust = 0)+
+  annotate("text", x = pageW/3*-1.3, y = pageH/3*-1.33, label = "Position", size=3, hjust = 0) +
+  annotate("text", x = pageW/3*-1.3, y = pageH/3*-1.4, label = "Friends are arranged sequentially in the order the facebook connections were made, \nclockwise from oldest to newest.", size=2.6, hjust = 0)+
+  annotate("text", x = pageW/3*-1.3, y = pageH/3*-1.5, label = "Distance from the centrepoint is determined by how requently/frequently the friend has \nmessaged you on facebook (with most recent/frequent closer to the centre.)", size=2.6, hjust = 0) +
+  annotate("text", x = pageW/3*-1.3, y = pageH/3*-1.59, label = "Met through", size=3, hjust = 0) +
+  annotate("text", x = pageW/3*-1.3, y = pageH/3*-1.72, label = "Connections", size=3, hjust = 0) 
+
+ggsave("pattern.pdf", width = pageW+1,  height = pageH+1,  units = "cm") ## Export the pattern as a PDF
+
+```
+
+### Print your pdf
+Before printing the pdf, you may want to make some tweaks to the legend, depending on the information you want to include and how you want it laid out. The easiest way to do this is by editing the pdf in a pdf editor. 
+
+Once you're happy with the pdf, transfer the pattern onto fabric. [www.stitchyoursocial.network](www.stitchyoursocial.network) has some suggestions for different ways to transfer your pattern.
+
+
+### Embroider
+You can use this interactive reference as a guide while embroidering your pattern. 
+
+```{r}
+## Handle if group colours aren't in use - comment out if they are, remove # if they aren't
+#groupColours <- c(groupColours,'None'='#7d7d7d')
+#interactions <- dplyr::mutate(interactions, across(c(group), replace_na, 'None')) #Replace blank groups with 'none'
+
+#interactions$name <- "redacted" ##Uncomment this line to redact names from HTML save if needed.
+
+## Draw interactive plot
+fig <- plot_ly(
+  interactions, x = ~x, y = ~y, width=700, height=700, type = 'scatter', mode = 'markers', color = ~group, colors = groupColours,
+  symbol = ~highlight, symbols = c("Y"='circle', "N" = 'o'),
+  # Hover text:
+  text = ~paste("Name: ", name,"<br>Met because:", group, "<br>First connected:", connectedDate, "<br>Most recent message:",mostRecentMDate, "<br># messages:", countM, "<br>Annotation:", annotation)) %>% layout(showlegend = FALSE)
+
+fig
+```
+Note: The filled/stroked dots are inverted between the print and interactive versions.
+
+### Share
+Post a photo of your finished piece to instagram or facebook using  #stitchyoursocialnetwork
+
+
